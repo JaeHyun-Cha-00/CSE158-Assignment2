@@ -43,3 +43,5 @@ y_pred = model.predict(X_test_tfidf)
 
 # 7. Accuracy
 print("Accuracy:", accuracy_score(y_test, y_pred))
+
+# Accuracy: 0.7489227926036781
