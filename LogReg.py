@@ -163,3 +163,5 @@ y_pred = model.predict(X_test_final)
 
 # 7. Accuracy
 print("Accuracy:", accuracy_score(df_test['rating'], y_pred))
+
+# Accuracy: 0.7515743800407783
