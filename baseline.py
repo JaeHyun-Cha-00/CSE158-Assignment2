@@ -1,47 +1,50 @@
 import pandas as pd
+from collections import defaultdict
 from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
-# 1. Load dataframe
-df = pd.read_csv("merged.csv", usecols=['text', 'rating'])
+# Load dataframe
+df = pd.read_csv("merged.csv", usecols=['user_id', 'rating'])
 
-# 2. Clean
-df = df.dropna(subset=['text', 'rating'])
-df['text'] = df['text'].astype(str)
+# Clean
+df = df.dropna(subset=['user_id', 'rating'])
+df['rating'] = df['rating'].astype(float)
 
-# Feature + label
-X = df['text']
-y = df['rating']
-
-# 3. Train/Val split
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42, stratify=y
+# Train/Test split
+train, test = train_test_split(
+    df, test_size=0.2, random_state=42, stratify=df['rating']
 )
 
-# 4. TF-IDF (baseline)
-tfidf = TfidfVectorizer(
-    max_features=50000,
-    #unigram
-    ngram_range=(1, 1)
-)
+# ========== Build baseline averages ==========
+allRatings = []
+userRatings = defaultdict(list)
 
-X_train_tfidf = tfidf.fit_transform(X_train)
-X_test_tfidf = tfidf.transform(X_test)
+for u, r in zip(train['user_id'], train['rating']):
+    r = float(r)
+    allRatings.append(r)
+    userRatings[u].append(r)
 
-# 5. Logistic Regression
-model = LogisticRegression(
-    max_iter=1000,
-    C=1.0
-)
+globalAverage = sum(allRatings) / len(allRatings)
 
-model.fit(X_train_tfidf, y_train)
+userAverage = {}
+for u in userRatings:
+    userAverage[u] = sum(userRatings[u]) / len(userRatings[u])
 
-# 6. Predict
-y_pred = model.predict(X_test_tfidf)
+# ========== Predict ==========
+preds = []
 
-# 7. Accuracy
-print("Accuracy:", accuracy_score(y_test, y_pred))
+for u in test['user_id']:
+    if u in userAverage:
+        preds.append(userAverage[u])
+    else:
+        preds.append(globalAverage)
 
-# Accuracy: 0.7489227926036781
+# ========== Convert predictions to integers 1–5 ==========
+def clamp_rating(x):
+    return min(5, max(1, int(round(x))))
+
+preds_clamped = [clamp_rating(p) for p in preds]
+
+# ========== Evaluate ==========
+accuracy = accuracy_score(test['rating'], preds_clamped)
+print("User-Average Baseline Accuracy:", accuracy)
