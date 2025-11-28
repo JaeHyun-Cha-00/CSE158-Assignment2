@@ -1,7 +1,7 @@
 import pandas as pd
 from collections import defaultdict
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, mean_squared_error
 
 # Load dataframe
 df = pd.read_csv("merged.csv", usecols=['user_id', 'rating'])
@@ -30,7 +30,7 @@ userAverage = {}
 for u in userRatings:
     userAverage[u] = sum(userRatings[u]) / len(userRatings[u])
 
-# ========== Predict ==========
+# ========== Predict (float) ==========
 preds = []
 
 for u in test['user_id']:
@@ -47,4 +47,7 @@ preds_clamped = [clamp_rating(p) for p in preds]
 
 # ========== Evaluate ==========
 accuracy = accuracy_score(test['rating'], preds_clamped)
+mse = mean_squared_error(test['rating'], preds)
+
 print("User-Average Baseline Accuracy:", accuracy)
+print("User-Average Baseline MSE:", mse)
