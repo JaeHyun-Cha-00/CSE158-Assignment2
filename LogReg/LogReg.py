@@ -5,7 +5,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
 # 1. Load dataframe
-df = pd.read_csv("merged.csv", usecols=['text', 'rating'])
+df = pd.read_csv("../merged.csv", usecols=['text', 'rating'])
 
 # 2. Clean
 df = df.dropna(subset=['text', 'rating'])

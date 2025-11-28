@@ -4,10 +4,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from scipy.sparse import hstack
-import numpy as np
 
 # 1. Load dataframe
-df = pd.read_csv("merged.csv", usecols=['text', 'rating', 'gmap_id'])
+df = pd.read_csv("../merged.csv", usecols=['text', 'rating', 'gmap_id'])
 
 # 2. Clean
 df = df.dropna(subset=['text', 'rating', 'gmap_id'])
@@ -45,7 +44,7 @@ df_test['avg_rating'] = df_test['avg_rating'].fillna(global_avg)
 
 tfidf = TfidfVectorizer(
     max_features=50000,
-    ngram_range=(1, 1),
+    ngram_range=(1, 2),
 )
 
 X_train_tfidf = tfidf.fit_transform(df_train['text'])
@@ -64,7 +63,7 @@ X_test_final = hstack([X_test_tfidf, X_test_num])
 
 # 5. Logistic Regression
 model = LogisticRegression(
-    max_iter=2000,
+    max_iter=4000,
     C=1.0
 )
 
@@ -76,4 +75,4 @@ y_pred = model.predict(X_test_final)
 # 7. Accuracy
 print("Accuracy:", accuracy_score(df_test['rating'], y_pred))
 
-Basline w/ avg Accuracy: 0.7495957333547603
+# Accuracy: 0.756100809343305

@@ -5,10 +5,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from scipy.sparse import hstack
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-import numpy as np
 
 # 1. Load dataframe
-df = pd.read_csv("merged.csv", usecols=['text', 'rating', 'gmap_id'])
+df = pd.read_csv("../merged.csv", usecols=['text', 'rating', 'gmap_id'])
 
 # 2. Clean
 df = df.dropna(subset=['text', 'rating', 'gmap_id'])
@@ -49,7 +48,7 @@ df_test['sentiment'] = df_test['text'].apply(lambda x: analyzer.polarity_scores(
 
 tfidf = TfidfVectorizer(
     max_features=50000,
-    ngram_range=(1, 1),
+    ngram_range=(1, 2),
 )
 
 X_train_tfidf = tfidf.fit_transform(df_train['text'])
@@ -82,4 +81,4 @@ y_pred = model.predict(X_test_final)
 # 7. Accuracy
 print("Accuracy:", accuracy_score(df_test['rating'], y_pred))
 
-# Accuracy: 0.7515743800407783
+# Accuracy: 0.7567359901649421
